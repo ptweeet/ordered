@@ -13,6 +13,9 @@ execute:
 library(tidyverse)
 library(primer.data)
 library(tidymodels)
+library(marginaleffects)
+library(ggplot2)
+
 ```
 
 Graduation rates and tuition are key factors in how students select college. In this analysis we use data from Opportunity Insights at Harvard University to explore the relationship between tuition and graduation rate. The stability of the graduation rate in our model may be limited due to changes in graduation requirements over time. We estimated that for every $10k increase in tuition graduation rate increased 0.9% (95%CI .7%, 01%) using a linear model with tuition and selectivity as covariates.
@@ -24,9 +27,6 @@ Graduation rates and tuition are key factors in how students select college. In 
 x <- colleges |>
 select(grad_rate, tuition, selectivity) |>
 filter(tuition > 2)
-
-
-library(tidymodels)
 
 fit_colleges <- linear_reg() |>
     set_engine("lm") |>
@@ -73,4 +73,28 @@ tidy(fit_colleges, conf.int = TRUE) |>
     title = "Regression Results",
     subtitle = "Model: fit_colleges (with 95% Confidence Intervals)"
   )
+```
+
+
+
+```{r}
+plot_predictions(
+  fit_colleges,
+  condition = "selectivity",
+  draw = TRUE
+) +
+  labs(
+    title = "Predicted Outcomes by College Selectivity",
+    subtitle = "Model-based predictions with 95% confidence intervals",
+    x = "Selectivity Level",
+    y = "Predicted Outcome",
+    caption = "Estimates from linear model of college characteristics"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 25, hjust = 1),
+    panel.grid.minor = element_blank()
+  ) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1))
 ```
