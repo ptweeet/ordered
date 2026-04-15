@@ -7,10 +7,70 @@ execute:
 ---
 
 
-```{r}
+```{r setup}
 #| message: false
+
 library(tidyverse)
 library(primer.data)
+library(tidymodels)
 ```
 
-Graduation rates and tuition are key factors in how students select college. In this analysis we use data from Opportunity Insights at Harvard University to explore the relationship between tuition and graduation rate. The stability of the graduation rate in our model may be limited due to changes in graduation requirements over time.
+Graduation rates and tuition are key factors in how students select college. In this analysis we use data from Opportunity Insights at Harvard University to explore the relationship between tuition and graduation rate. The stability of the graduation rate in our model may be limited due to changes in graduation requirements over time. We estimated that for every $10k increase in tuition graduation rate increased 0.9% (95%CI .7%, 01%) using a linear model with tuition and selectivity as covariates.
+
+
+```{r model}
+#| cache: true
+
+x <- colleges |>
+select(grad_rate, tuition, selectivity) |>
+filter(tuition > 2)
+
+
+library(tidymodels)
+
+fit_colleges <- linear_reg() |>
+    set_engine("lm") |>
+    fit(grad_rate ~ tuition + selectivity, 
+        data = x)
+```
+
+$$
+\widehat{\text{grad\_rate}} = 50.2 - 0.0031 \cdot \text{tuition} + 7.5 \cdot \text{selectivity}_{\text{Selective}} + 15.8 \cdot \text{selectivity}_{\text{HighlySelective}}
+$$
+
+```{r table}
+#| message: false
+
+library(gt)
+library(dplyr)
+
+tidy(fit_colleges, conf.int = TRUE) |>
+  mutate(
+    term = gsub("\\(Intercept\\)", "Intercept", term),
+    conf.int = paste0(
+      "(", round(conf.low, 3), ", ", round(conf.high, 3), ")"
+    )
+  ) |>
+  select(term, estimate, std.error, statistic, p.value, conf.int) |>
+  gt() |>
+  fmt_number(
+    columns = c(estimate, std.error, statistic),
+    decimals = 3
+  ) |>
+  fmt_scientific(
+    columns = p.value,
+    decimals = 2
+  ) |>
+  cols_label(
+    term = "Term",
+    estimate = "Estimate",
+    std.error = "Std. Error",
+    statistic = "t value",
+    p.value = "p-value",
+    conf.int = "95% CI"
+  ) |>
+  tab_header(
+    title = "Regression Results",
+    subtitle = "Model: fit_colleges (with 95% Confidence Intervals)"
+  )
+```
