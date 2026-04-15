@@ -1,0 +1,16 @@
+---
+title: "Ordered"
+author: "Alec Rogers"
+format: html
+execute: 
+  echo: false
+---
+
+
+```{r}
+#| message: false
+library(tidyverse)
+library(primer.data)
+```
+
+Graduation rates and tuition are key factors in how students select college. In this analysis we use data from Opportunity Insights at Harvard University to explore the relationship between tuition and graduation rate.
