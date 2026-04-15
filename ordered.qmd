@@ -13,4 +13,4 @@ library(tidyverse)
 library(primer.data)
 ```
 
-Graduation rates and tuition are key factors in how students select college. In this analysis we use data from Opportunity Insights at Harvard University to explore the relationship between tuition and graduation rate.
+Graduation rates and tuition are key factors in how students select college. In this analysis we use data from Opportunity Insights at Harvard University to explore the relationship between tuition and graduation rate. The stability of the graduation rate in our model may be limited due to changes in graduation requirements over time.
